@@ -44,9 +44,6 @@ public class TaskListAddDao {
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
-		finally {
-			this.cleanUp();
-		}
 		return -1;
 	}
 	

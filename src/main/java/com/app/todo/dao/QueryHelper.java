@@ -11,7 +11,7 @@ public interface QueryHelper {
 	
 	String queryGetAllTasks = "SELECT * FROM todo_list_db.task";
 	
-	String queryGetTaskByDetail = "SELECT * FROM todo_list_db.task WHERE (title = ?)";
+	String queryGetTaskByDetail = "SELECT * FROM todo_list_db.task WHERE title = ?";
 	
 	String queryAddNewTask = "INSERT INTO task (title, description, category, status, date_created, date_completed, comment) "
 			+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -31,5 +31,10 @@ public interface QueryHelper {
 	
 	String deleteSuccess = "Task detail removed successfully!";
 	String deleteFail = "Error while task detail deletion, please try again later.";
+	
+	String searchSuccess = "Task details found!";
+	String searchFail = "Task details with given title does not exist!";
+	
+	String statusComplete = "COMPLETED";
 }
 

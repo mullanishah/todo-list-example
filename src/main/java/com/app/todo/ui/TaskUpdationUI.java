@@ -7,10 +7,14 @@ import java.awt.Font;
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Date;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -18,26 +22,35 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.app.todo.dao.QueryHelper;
+import com.app.todo.operations.TaskListOperations;
 import com.app.todo.pojo.TaskDetail;
+import com.app.todo.utils.CommonUtils;
 import com.app.todo.utils.Constants;
 
 /**
  * @author Shahrukh
  * @since 15-Apr-2022
  */
-public class TaskUpdationUI extends JFrame implements ActionListener  {
+public class TaskUpdationUI extends JFrame implements ActionListener, ItemListener  {
+	
 	private JPanel panelTextData, panelButtons;
 	private JButton btnUpdate, btnBack;
 	private JLabel labelTitle, labelDescription, labelCategory, labelStatus, labelDateCreated, labelDateCompleted, labelComment;
 	private JTextField txtTitle, txtCategory, txtStatus, txtDateCreated, txtDateCompleted;
 	private JTextArea taDescription, taComment;
+	private JComboBox<String> comboStatus = null;
 	
 	private TaskDetail task = null;
+	private String updatedTaskStatus = null;
 	private static int WIDTH = 700;
 	private static int HEIGHT = 600;
 	
+	private TaskListOperations taskOperations = null;
+	
 	public TaskUpdationUI(TaskDetail task) {
 		try {
+			taskOperations = new TaskListOperations();
 			System.out.println("Task to update: " + task.getTitle());
 			this.task = task;
 			initGUI();
@@ -59,6 +72,7 @@ public class TaskUpdationUI extends JFrame implements ActionListener  {
 		
 		btnUpdate.addActionListener(this);
 		btnBack.addActionListener(this);
+		comboStatus.addItemListener(this);
 		
 		setVisible(true);
 	}
@@ -93,18 +107,59 @@ public class TaskUpdationUI extends JFrame implements ActionListener  {
 	}
 		
 	private void initBL() {
-		
+		txtTitle.setText(task.getTitle());
+		taDescription.setText(task.getDescription());
+		txtCategory.setText(task.getCategory());
+		//txtStatus.setText(task.getStatus());
+		comboStatus.setSelectedItem(task.getStatus());
+		txtDateCreated.setText(task.getDateCreated().toString());
+		txtDateCompleted.setText((task.getDateCompleted() != null)? task.getDateCompleted().toString() : "");
+		taComment.setText(task.getComment());
+		//txtStatus.setEditable(false);
+		txtDateCreated.setEditable(false);
+		txtDateCompleted.setEditable(false);
 	}
+	
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-		if(ae.getSource() == btnUpdate) {
-			int output = JOptionPane.showConfirmDialog(this, "Are you sure to update the task?");
-			if(output == JOptionPane.YES_OPTION) {
-				System.out.println("Update confirmed for " + task.getTitle());
+		try {
+			if(ae.getSource() == btnUpdate) {
+				int output = JOptionPane.showConfirmDialog(this, "Are you sure to update the task?");
+				if(output == JOptionPane.YES_OPTION) {
+					String title = txtTitle.getText().toString().trim();
+					String description = taDescription.getText().toString().trim();
+					String category = txtCategory.getText().toString().trim();
+					//String status = txtStatus.getText().toString().trim();
+					String status = this.updatedTaskStatus;
+					String comment = taComment.getText().toString().trim();
+					Date dateCompleted = null;
+					if(txtDateCompleted.getText() != null && !(txtDateCompleted.getText().equals(""))) {
+						dateCompleted = CommonUtils.getSdf().parse(txtDateCompleted.getText());
+					}
+					if(status.equalsIgnoreCase(QueryHelper.statusComplete)) {
+						txtDateCompleted.setText(CommonUtils.getSdf().format(new Date()));				
+						dateCompleted = CommonUtils.getSdf().parse(txtDateCompleted.getText().toString().trim());
+					}
+					TaskDetail updatedTask = new TaskDetail(title, description, category, status, task.getDateCreated(), dateCompleted, comment);
+										
+					System.out.println("in update():" + updatedTask);
+					String updateStatus = taskOperations.updateTask(task, updatedTask);
+					JOptionPane.showMessageDialog(this, updateStatus);
+				}
+			} else if(ae.getSource() == btnBack) {
+				this.setVisible(false);
+				new TaskListUI();
 			}
-		} else if(ae.getSource() == btnBack) {
-			this.setVisible(false);
-			new TaskListUI();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void itemStateChanged(ItemEvent ae) {
+		if(ae.getSource() == comboStatus) {
+			this.updatedTaskStatus = comboStatus.getSelectedItem().toString();
+			System.out.println("updatedTaskStatus: " + updatedTaskStatus);
 		}
 		
 	}
@@ -152,9 +207,13 @@ public class TaskUpdationUI extends JFrame implements ActionListener  {
 		txtCategory.setBounds(280, 160, 250, 30);
 		panel.add(txtCategory);
 		
-		txtStatus = new JTextField("");
-		txtStatus.setBounds(280, 205, 250, 30);
-		panel.add(txtStatus);
+		//txtStatus = new JTextField("");
+		//txtStatus.setBounds(280, 205, 250, 30);
+		//panel.add(txtStatus);
+		String[] states = { "NEW", "IN PROGRESS", "BLOCKAGE", "COMPLETED" };
+		comboStatus = new JComboBox<String>(states);
+		comboStatus.setBounds(280, 205, 250, 30);
+		panel.add(comboStatus);
 		
 		txtDateCreated = new JTextField("");
 		txtDateCreated.setBounds(280, 250, 250, 30);

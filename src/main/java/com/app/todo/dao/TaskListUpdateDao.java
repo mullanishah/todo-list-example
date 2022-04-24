@@ -1,8 +1,10 @@
 package com.app.todo.dao;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
 import com.app.todo.pojo.TaskDetail;
 
 /**
@@ -10,12 +12,14 @@ import com.app.todo.pojo.TaskDetail;
  * @since 24-Apr-2022
  */
 public class TaskListUpdateDao {
+	
+	//private static Logger log = Logger.getLogger(TaskListUpdateDao.class);
 	private Connection conn;
 	private PreparedStatement pstUpdateTask;
 
 	public TaskListUpdateDao() throws SQLException {
 		this.conn = DatabaseUtils.getConnection();
-		this.pstUpdateTask = conn.prepareStatement(QueryHelper.queryAddNewTask);
+		this.pstUpdateTask = conn.prepareStatement(QueryHelper.queryUpdateTask);
 	}
 
 	public void cleanUp() throws Exception {
@@ -26,27 +30,31 @@ public class TaskListUpdateDao {
 	}
 
 	//CRUD operations
-	public Integer updateTask(TaskDetail task) throws Exception {
+	public Integer updateTask(TaskDetail oldTaskDetails, TaskDetail task) throws Exception {
 
 		try {
+			//log.debug("updateTask(), oldTitle: " + oldTitle +", task:" + task);
+			System.out.println("updateTask(), oldTitle: " + oldTaskDetails +" | task:" + task);
 			pstUpdateTask.setString(1, task.getTitle());
 			pstUpdateTask.setString(2, task.getDescription());
 			pstUpdateTask.setString(3, task.getCategory());
 			pstUpdateTask.setString(4, task.getStatus());
-			pstUpdateTask.setDate(5, new java.sql.Date(task.getDateCompleted().getTime()));
+			if(task.getDateCompleted() != null && !(task.getDateCompleted().toString().equals("")))
+				pstUpdateTask.setDate(5, new java.sql.Date(task.getDateCompleted().getTime()));
+			if(task.getDateCompleted() == null || task.getDateCompleted().toString().equals(""))
+				pstUpdateTask.setDate(5, null);
 			pstUpdateTask.setString(6, task.getComment());
-			pstUpdateTask.setLong(7, task.getId());
-			pstUpdateTask.setString(8, task.getTitle());
-
+			pstUpdateTask.setLong(7, oldTaskDetails.getId());
+			pstUpdateTask.setString(8, oldTaskDetails.getTitle());
+			
 			int updateCount = pstUpdateTask.executeUpdate();
+			//.debug("updateTask(), updateCount: " + updateCount);
+			System.out.println("updateTask(), updateCount: " + updateCount);
 			if(updateCount == 1) {
 				return updateCount;
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
-			this.cleanUp();
 		}
 		return -1;	
 	}
@@ -60,9 +68,6 @@ public class TaskListUpdateDao {
 			int a = 0;
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
-			cleanUp();
 		}
 		return -1;
 	}
