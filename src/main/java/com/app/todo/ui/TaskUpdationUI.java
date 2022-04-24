@@ -13,31 +13,33 @@ import java.awt.event.WindowEvent;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.app.todo.pojo.TaskDetail;
 import com.app.todo.utils.Constants;
 
 /**
  * @author Shahrukh
  * @since 15-Apr-2022
  */
-public class TaskCreationUI extends JFrame implements ActionListener  {
+public class TaskUpdationUI extends JFrame implements ActionListener  {
 	private JPanel panelTextData, panelButtons;
-	private JButton btnAdd, btnClear, btnBack;
+	private JButton btnUpdate, btnBack;
 	private JLabel labelTitle, labelDescription, labelCategory, labelStatus, labelDateCreated, labelDateCompleted, labelComment;
 	private JTextField txtTitle, txtCategory, txtStatus, txtDateCreated, txtDateCompleted;
 	private JTextArea taDescription, taComment;
 	
+	private TaskDetail task = null;
 	private static int WIDTH = 700;
 	private static int HEIGHT = 600;
 	
-	public static void main(String[] args) {
-		new TaskCreationUI();
-	}
-	public TaskCreationUI() {
+	public TaskUpdationUI(TaskDetail task) {
 		try {
+			System.out.println("Task to update: " + task.getTitle());
+			this.task = task;
 			initGUI();
 			initBL();
 		} catch (Exception e) {
@@ -46,7 +48,7 @@ public class TaskCreationUI extends JFrame implements ActionListener  {
 	}
 	
 	private void initGUI() {
-		setTitle(Constants.appName + ": New Task");
+		setTitle(Constants.appName + ": Modify Task");
 		setSize(WIDTH, HEIGHT);
 		setLocationRelativeTo(null);
 		
@@ -55,9 +57,8 @@ public class TaskCreationUI extends JFrame implements ActionListener  {
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		btnAdd.addActionListener(this);
+		btnUpdate.addActionListener(this);
 		btnBack.addActionListener(this);
-		btnClear.addActionListener(this);
 		
 		setVisible(true);
 	}
@@ -80,13 +81,9 @@ public class TaskCreationUI extends JFrame implements ActionListener  {
 		panelButtons.setBackground(Color.cyan);
 		panelButtons.setBounds(0, 483, WIDTH, 80);
 		
-		btnAdd = new JButton("REGISTER");
-		btnAdd.setBounds(50, 500, 150, 35);
-		panelButtons.add(btnAdd);
-
-		btnClear = new JButton("CLEAR");
-		btnClear.setBounds(430, 500, 100, 35);
-		panelButtons.add(btnClear);
+		btnUpdate = new JButton("MODIFY");
+		btnUpdate.setBounds(50, 500, 150, 35);
+		panelButtons.add(btnUpdate);
 
 		btnBack = new JButton("BACK");
 		btnBack.setBounds(540, 500, 100, 35);
@@ -100,10 +97,11 @@ public class TaskCreationUI extends JFrame implements ActionListener  {
 	}
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-		if(ae.getSource() == btnAdd) {
-			
-		} else if(ae.getSource() == btnClear) {
-			
+		if(ae.getSource() == btnUpdate) {
+			int output = JOptionPane.showConfirmDialog(this, "Are you sure to update the task?");
+			if(output == JOptionPane.YES_OPTION) {
+				System.out.println("Update confirmed for " + task.getTitle());
+			}
 		} else if(ae.getSource() == btnBack) {
 			this.setVisible(false);
 			new TaskListUI();
