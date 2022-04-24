@@ -53,6 +53,7 @@ public class TaskListUpdateDao {
 	
 	/*
 	 * TODO: update status and completion date if status completed
+	 *  status: NEW, In progress, blockage, completed
 	 */
 	public Integer updateTaskStatus() throws Exception {
 		try {
