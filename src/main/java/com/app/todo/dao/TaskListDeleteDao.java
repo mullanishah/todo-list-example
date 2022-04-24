@@ -15,7 +15,7 @@ public class TaskListDeleteDao {
 
 	public TaskListDeleteDao() throws SQLException {
 		this.conn = DatabaseUtils.getConnection();
-		this.pstDeleteTask = conn.prepareStatement(QueryHelper.queryAddNewTask);
+		this.pstDeleteTask = conn.prepareStatement(QueryHelper.queryDeleteTask);
 	}
 
 	public void cleanUp() throws Exception {
@@ -38,9 +38,6 @@ public class TaskListDeleteDao {
 			}
 		}catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
-			cleanUp();
 		}
 		return -1;
 	}

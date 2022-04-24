@@ -15,16 +15,19 @@ import com.app.todo.pojo.TaskDetail;
 public class TaskListGetDao {
 	
 	private Connection conn;
-	private PreparedStatement pstGetAllTasks;
+	private PreparedStatement pstGetAllTasks, pstGetTask;
 	
 	public TaskListGetDao() throws SQLException {
 		this.conn = DatabaseUtils.getConnection();
 		this.pstGetAllTasks = conn.prepareStatement(QueryHelper.queryGetAllTasks);
+		this.pstGetTask = conn.prepareStatement(QueryHelper.queryGetTaskByDetail);
 	}
 	
 	public void cleanUp() throws Exception {
 		if(null != pstGetAllTasks)
 			pstGetAllTasks.close();
+		if(null != pstGetTask)
+			pstGetTask.close();
 		if(null != conn)
 			conn.close();
 	}
@@ -57,10 +60,39 @@ public class TaskListGetDao {
 			System.out.println("Error in get all tasks");
 			//change it to logger
 		} finally {
-			rst.close();
-			cleanUp();
+			//rst.close();
 		}
 		return taskDetailMap;
+	}
+	
+public TaskDetail getTaskDetails(String title) throws Exception {
+		
+		TaskDetail task = null;
+		ResultSet rst = null;
+		try {
+			pstGetTask.setString(1, title);
+			rst = pstGetTask.executeQuery();
+			while(rst.next()) {
+				task = new TaskDetail(
+						rst.getLong("id"), 
+						rst.getString("title"), 
+						rst.getString("description"), 
+						rst.getString("category"), 
+						rst.getString("status"), 
+						rst.getDate("date_created"), 
+						rst.getDate("date_completed"),
+						rst.getString("comment"));
+			}
+			System.out.println("returned object: " + task);
+			//change it to logger
+		} catch (Exception e) {
+			System.out.println("Error in get task");
+			e.printStackTrace();
+			//change it to logger
+		} finally {
+			//rst.close();
+		}
+		return task;
 	}
 	
 }

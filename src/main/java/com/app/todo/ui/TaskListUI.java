@@ -1,36 +1,26 @@
 package com.app.todo.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-
-import org.jdesktop.swingx.JXTextField;
-
 import com.app.todo.dao.TaskListGetDao;
+import com.app.todo.operations.TaskListOperations;
 import com.app.todo.pojo.TaskDetail;
 import com.app.todo.utils.Constants;
 
@@ -52,11 +42,12 @@ public class TaskListUI extends JFrame implements ActionListener{
 	private static String selectedItemValue = null;
 
 	private String[] taskTitles = null;
-	private TaskListGetDao taskListDao = null;
+	private TaskListOperations taskOperations = null;
 	private Map<String, TaskDetail> taskDetailMap = null;
 
 	public TaskListUI() {
 		try {
+			taskOperations = new TaskListOperations();
 			initialDataLoad();
 			initGUI();
 			initBL();
@@ -133,7 +124,7 @@ public class TaskListUI extends JFrame implements ActionListener{
 				selectedItemStatus = true;
 				selectedItemValue = jlist.getSelectedValue();
 				System.out.println(selectedItemStatus + selectedItemValue);
-				
+
 				btnEdit.setVisible(true);
 				btnDelete.setVisible(true);
 			}
@@ -167,33 +158,43 @@ public class TaskListUI extends JFrame implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-		if(ae.getSource() == btnSearch) {
-			System.out.println("Search");
-		} else if(ae.getActionCommand().equalsIgnoreCase("add") || ae.getSource() == btnAdd) {
-			this.setVisible(false);
-			new TaskCreationUI();
-		} else if(ae.getSource() == btnEdit) {
-			if(selectedItemStatus == true) {
-				TaskDetail task = taskDetailMap.get(selectedItemValue);
+		try {
+			if(ae.getSource() == btnSearch) {
+				System.out.println("Search");
+				JOptionPane.showMessageDialog(this, taskOperations.searchTask(txtSearch.getText().toString().trim()));
+			} else if(ae.getActionCommand().equalsIgnoreCase("add") || ae.getSource() == btnAdd) {
 				this.setVisible(false);
-				new TaskUpdationUI(task);
-				System.out.println(task);
-			}
-		} else if(ae.getSource() == btnDelete) {
-			if(selectedItemStatus == true) {
-				int output = JOptionPane.showConfirmDialog(this, "Are you sure?");
-				if(output == JOptionPane.YES_OPTION) {
-					System.out.println("delete confirmed for " + selectedItemValue);
+				new TaskCreationUI();
+			} else if(ae.getSource() == btnEdit) {
+				if(selectedItemStatus == true) {
+					TaskDetail task = taskDetailMap.get(selectedItemValue);
+					this.setVisible(false);
+					new TaskUpdationUI(task);
+					System.out.println(task);
+				}
+			} else if(ae.getSource() == btnDelete) {
+				if(selectedItemStatus == true) {
+					TaskDetail task = taskDetailMap.get(selectedItemValue);
+					int output = JOptionPane.showConfirmDialog(this, "Are you sure to remove?");
+					if(output == JOptionPane.YES_OPTION) {
+						System.out.println("delete confirmed for " + selectedItemValue);
+						String deleteStatus = taskOperations.deleteTask(task);
+						JOptionPane.showMessageDialog(this, deleteStatus);
+						
+						this.setVisible(false);
+						new TaskListUI();
+					}
 				}
 			}
+		}catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
 	private void initialDataLoad() throws Exception {
 
 		int index = 0;
-		taskListDao = new TaskListGetDao();
-		taskDetailMap = taskListDao.getAllTaskDetails();
+		taskDetailMap = taskOperations.getAllTasks();
 		taskTitles = new String[taskDetailMap.size()];
 		for(String key : taskDetailMap.keySet()) {
 			taskTitles[index++] = key;

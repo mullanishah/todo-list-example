@@ -18,7 +18,16 @@ public class CommonUtils {
 	
 	static {
 		scanner = new Scanner(System.in);
-		sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.ENGLISH);
+		sdf = new SimpleDateFormat("dd-MM-yyyy");
 	}
+
+	public static Scanner getScanner() {
+		return scanner;
+	}
+
+	public static SimpleDateFormat getSdf() {
+		return sdf;
+	}
+
 	
 }
