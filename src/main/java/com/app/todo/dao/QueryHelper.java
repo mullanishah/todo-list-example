@@ -36,5 +36,9 @@ public interface QueryHelper {
 	String searchFail = "Task details with given title does not exist!";
 	
 	String statusComplete = "COMPLETED";
+	
+	//validations
+	String errorSearchEmpty = "Error, Please enter value to be searched!";
+	String errorTitleEmpty = "Error, Task title is a mandatory field inorder to create a task. Please try again!";
 }
 

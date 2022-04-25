@@ -15,6 +15,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import com.app.todo.dao.QueryHelper;
 import com.app.todo.operations.TaskListOperations;
 import com.app.todo.pojo.TaskDetail;
 import com.app.todo.utils.CommonUtils;
@@ -118,9 +119,13 @@ public class TaskCreationUI extends JFrame implements ActionListener  {
 				String comment = taComment.getText().toString().trim();
 				Date dateCreated = CommonUtils.getSdf().parse(txtDateCreated.getText().toString().trim());
 				Date dateCompleted = null;
-				TaskDetail task = new TaskDetail(title, description, category, status, dateCreated, dateCompleted, comment);
-				String insertStatus = taskOperations.addTask(task);
-				JOptionPane.showMessageDialog(this, insertStatus);
+				if(title == null || title.equalsIgnoreCase(""))
+					JOptionPane.showMessageDialog(this, QueryHelper.errorTitleEmpty);
+				else {
+					TaskDetail task = new TaskDetail(title, description, category, status, dateCreated, dateCompleted, comment);
+					String insertStatus = taskOperations.addTask(task);
+					JOptionPane.showMessageDialog(this, insertStatus);
+				}
 			} else if(ae.getSource() == btnClear) {
 				txtTitle.setText("");
 				taDescription.setText("");
@@ -137,7 +142,7 @@ public class TaskCreationUI extends JFrame implements ActionListener  {
 	}
 
 	private void initializeLabels(JPanel panel) {
-		labelTitle = new JLabel("Task Title: "); 			   			labelTitle.setBounds(150, 50, 150, 30);
+		labelTitle = new JLabel("Task Title*: "); 			   			labelTitle.setBounds(150, 50, 150, 30);
 		labelTitle.setFont(new Font("Serif", Font.BOLD, 16));   		labelTitle.setForeground(Color.white);
 		panel.add(labelTitle);
 
@@ -167,6 +172,7 @@ public class TaskCreationUI extends JFrame implements ActionListener  {
 	}
 
 	private void initializeTexts(JPanel panel) {
+		
 		txtTitle = new JTextField(50);
 		txtTitle.setBounds(280, 50, 250, 30);
 		panel.add(txtTitle);
