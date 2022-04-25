@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Date;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -14,7 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-
+import org.apache.log4j.Logger;
 import com.app.todo.dao.QueryHelper;
 import com.app.todo.operations.TaskListOperations;
 import com.app.todo.pojo.TaskDetail;
@@ -28,12 +27,13 @@ import com.app.todo.utils.Constants;
 public class TaskCreationUI extends JFrame implements ActionListener  {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger log = Logger.getLogger(TaskListUI.class);
+	
 	private JPanel panelTextData, panelButtons;
 	private JButton btnAdd, btnClear, btnBack;
 	private JLabel labelTitle, labelDescription, labelCategory, labelStatus, labelDateCreated, labelDateCompleted, labelComment;
 	private JTextField txtTitle, txtCategory, txtStatus, txtDateCreated, txtDateCompleted;
 	private JTextArea taDescription, taComment;
-
 	private TaskListOperations taskOperations = null;
 
 	private static int WIDTH = 700;
@@ -125,18 +125,23 @@ public class TaskCreationUI extends JFrame implements ActionListener  {
 					TaskDetail task = new TaskDetail(title, description, category, status, dateCreated, dateCompleted, comment);
 					String insertStatus = taskOperations.addTask(task);
 					JOptionPane.showMessageDialog(this, insertStatus);
+					log.info("register button clicked, insertion status " + insertStatus);
 				}
 			} else if(ae.getSource() == btnClear) {
 				txtTitle.setText("");
 				taDescription.setText("");
 				txtCategory.setText("");
 				taComment.setText("");
+				log.debug("clear button clicked");
 				JOptionPane.showMessageDialog(this, "Cleared !!");
 			} else if(ae.getSource() == btnBack) {
 				this.setVisible(false);
 				new TaskListUI();
+				log.debug("back button clicked");
 			}
 		} catch (Exception e) {
+			log.error("Error occurred while task creation");
+			JOptionPane.showMessageDialog(this, QueryHelper.genericErrorAlert + e.getMessage());
 			e.printStackTrace();
 		}
 	}

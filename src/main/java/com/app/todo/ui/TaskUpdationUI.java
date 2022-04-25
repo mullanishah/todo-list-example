@@ -2,17 +2,12 @@ package com.app.todo.ui;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.Date;
-
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -21,7 +16,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-
+import org.apache.log4j.Logger;
 import com.app.todo.dao.QueryHelper;
 import com.app.todo.operations.TaskListOperations;
 import com.app.todo.pojo.TaskDetail;
@@ -35,6 +30,8 @@ import com.app.todo.utils.Constants;
 public class TaskUpdationUI extends JFrame implements ActionListener, ItemListener  {
 	
 	private static final long serialVersionUID = 1L;
+	private static final Logger log = Logger.getLogger(TaskUpdationUI.class);
+	
 	private JPanel panelTextData, panelButtons;
 	private JButton btnUpdate, btnBack;
 	private JLabel labelTitle, labelDescription, labelCategory, labelStatus, labelDateCreated, labelDateCompleted, labelComment;
@@ -51,8 +48,8 @@ public class TaskUpdationUI extends JFrame implements ActionListener, ItemListen
 	public TaskUpdationUI(TaskDetail task) {
 		try {
 			taskOperations = new TaskListOperations();
-			//System.out.println("Task to update: " + task.getTitle());
 			this.task = task;
+			log.debug("Task details received from main screen, title: " + task.getTitle());
 			initGUI();
 			initBL();
 		} catch (Exception e) {
@@ -107,6 +104,7 @@ public class TaskUpdationUI extends JFrame implements ActionListener, ItemListen
 	}
 		
 	private void initBL() {
+		
 		txtTitle.setText(task.getTitle());
 		taDescription.setText(task.getDescription());
 		txtCategory.setText(task.getCategory());
@@ -127,19 +125,28 @@ public class TaskUpdationUI extends JFrame implements ActionListener, ItemListen
 					String title = txtTitle.getText().toString().trim();
 					String description = taDescription.getText().toString().trim();
 					String category = txtCategory.getText().toString().trim();
-					String status = this.updatedTaskStatus;
 					String comment = taComment.getText().toString().trim();
+					
+					//Note: if status is not updated, keep the original status came from this.task
+					String status = (this.updatedTaskStatus != null) ? status = this.updatedTaskStatus : this.task.getStatus();
+					log.debug("updated status: " + status);
+					
+					//Note: here completion date is already loaded from database record, hence no need to change
 					Date dateCompleted = null;
 					if(txtDateCompleted.getText() != null && !(txtDateCompleted.getText().equals(""))) {
 						dateCompleted = CommonUtils.getSdf().parse(txtDateCompleted.getText());
+						log.debug("Date completion should not be calculated since it would have been loaded from database itself and no dynamic change detected");
 					}
+					//Note: here status is changed to completed, therefore the completion date needs to set dynamically.
 					if(status.equalsIgnoreCase(QueryHelper.statusComplete)) {
 						txtDateCompleted.setText(CommonUtils.getSdf().format(new Date()));				
 						dateCompleted = CommonUtils.getSdf().parse(txtDateCompleted.getText().toString().trim());
+						log.debug("when status is 'completed', date completion calculated to " + dateCompleted);
 					}
 					TaskDetail updatedTask = new TaskDetail(title, description, category, status, task.getDateCreated(), dateCompleted, comment);
 										
 					String updateStatus = taskOperations.updateTask(task, updatedTask);
+					log.info("update confirmed, update status " + updateStatus);
 					JOptionPane.showMessageDialog(this, updateStatus);
 				}
 			} else if(ae.getSource() == btnBack) {
@@ -147,7 +154,9 @@ public class TaskUpdationUI extends JFrame implements ActionListener, ItemListen
 				new TaskListUI();
 			}
 		}catch (Exception e) {
+			log.error("Error while updatation of the task");
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, QueryHelper.genericErrorAlert + e.getMessage());
 		}
 	}
 	
@@ -159,7 +168,7 @@ public class TaskUpdationUI extends JFrame implements ActionListener, ItemListen
 	}
 	
 	private void initializeLabels(JPanel panel) {
-		labelTitle = new JLabel("Task Title: "); 			   			labelTitle.setBounds(150, 50, 150, 30);
+		labelTitle = new JLabel("Task Title*: "); 			   			labelTitle.setBounds(150, 50, 150, 30);
 		labelTitle.setFont(new Font("Serif", Font.BOLD, 16));   		labelTitle.setForeground(Color.white);
 		panel.add(labelTitle);
 		
