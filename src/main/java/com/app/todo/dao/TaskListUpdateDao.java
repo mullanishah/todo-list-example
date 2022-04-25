@@ -34,7 +34,7 @@ public class TaskListUpdateDao {
 
 		try {
 			//log.debug("updateTask(), oldTitle: " + oldTitle +", task:" + task);
-			System.out.println("updateTask(), oldTitle: " + oldTaskDetails +" | task:" + task);
+			//System.out.println("updateTask(), oldTitle: " + oldTaskDetails +" | task:" + task);
 			pstUpdateTask.setString(1, task.getTitle());
 			pstUpdateTask.setString(2, task.getDescription());
 			pstUpdateTask.setString(3, task.getCategory());
@@ -49,7 +49,7 @@ public class TaskListUpdateDao {
 			
 			int updateCount = pstUpdateTask.executeUpdate();
 			//.debug("updateTask(), updateCount: " + updateCount);
-			System.out.println("updateTask(), updateCount: " + updateCount);
+			//System.out.println("updateTask(), updateCount: " + updateCount);
 			if(updateCount == 1) {
 				return updateCount;
 			}

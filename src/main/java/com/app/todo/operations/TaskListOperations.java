@@ -1,5 +1,6 @@
 package com.app.todo.operations;
 
+import java.util.Date;
 import java.util.Map;
 import com.app.todo.dao.QueryHelper;
 import com.app.todo.dao.TaskListAddDao;
@@ -7,6 +8,7 @@ import com.app.todo.dao.TaskListDeleteDao;
 import com.app.todo.dao.TaskListGetDao;
 import com.app.todo.dao.TaskListUpdateDao;
 import com.app.todo.pojo.TaskDetail;
+import com.app.todo.utils.CommonUtils;
 
 /**
  * @author Shahrukh
@@ -58,10 +60,20 @@ public class TaskListOperations {
 			sb.append("Title: " + task.getTitle() + "\n");
 			sb.append("Description: " + task.getDescription() + " | ");
 			sb.append("Status: " + task.getStatus() + "\n");
-			sb.append("Created on: " + task.getDateCreated() + " | Completed on: " + task.getDateCompleted());
+			sb.append("Created on: " + task.getDateCreated() + " | Completed on: " + getEnrichedTaskCompletedDate(task.getDateCompleted()));
 			return sb.toString(); 
 		}
 		return QueryHelper.searchFail;
+	}
+	
+	private String getEnrichedTaskCompletedDate(Date completionDate) {
+		
+		if(completionDate == null) {
+			return "Not yet";
+		} else if(CommonUtils.getSdf().format(completionDate) != null) {
+			return completionDate.toString();
+		}
+		return "Not yet";
 	}
 
 }

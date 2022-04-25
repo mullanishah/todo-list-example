@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import com.app.todo.dao.TaskListGetDao;
+import com.app.todo.dao.QueryHelper;
 import com.app.todo.operations.TaskListOperations;
 import com.app.todo.pojo.TaskDetail;
 import com.app.todo.utils.Constants;
@@ -74,7 +74,7 @@ public class TaskListUI extends JFrame implements ActionListener{
 
 			@Override
 			public void windowClosing(WindowEvent e) {
-				System.out.println("Exiting");
+				//System.out.println("Exiting");
 				System.exit(0);
 			}
 		});
@@ -88,6 +88,7 @@ public class TaskListUI extends JFrame implements ActionListener{
 	}
 
 	private Component setPanelSearch() {
+		
 		panelSearch = new JPanel();
 		panelSearch.setBounds(1, 10, WIDTH, 50);
 
@@ -123,8 +124,7 @@ public class TaskListUI extends JFrame implements ActionListener{
 			public void valueChanged(ListSelectionEvent e) {
 				selectedItemStatus = true;
 				selectedItemValue = jlist.getSelectedValue();
-				System.out.println(selectedItemStatus + selectedItemValue);
-
+				
 				btnEdit.setVisible(true);
 				btnDelete.setVisible(true);
 			}
@@ -160,24 +160,34 @@ public class TaskListUI extends JFrame implements ActionListener{
 	public void actionPerformed(ActionEvent ae) {
 		try {
 			if(ae.getSource() == btnSearch) {
-				System.out.println("Search");
-				JOptionPane.showMessageDialog(this, taskOperations.searchTask(txtSearch.getText().toString().trim()));
+				
+				String searchValue = txtSearch.getText().toString().trim();
+				if(!(searchValue.equals("")) && searchValue != null) {
+					JOptionPane.showMessageDialog(this, taskOperations.searchTask(txtSearch.getText().toString().trim()));
+				} else if(selectedItemStatus == true) {
+					//JOptionPane.showMessageDialog(this, taskOperations.searchTask(selectedItemValue));
+					JOptionPane.showMessageDialog(this, taskOperations.searchTask(selectedItemValue), "Task Summary", JOptionPane.PLAIN_MESSAGE, null);
+				} else {
+					JOptionPane.showMessageDialog(this, QueryHelper.errorSearchEmpty);
+				}
 			} else if(ae.getActionCommand().equalsIgnoreCase("add") || ae.getSource() == btnAdd) {
+				
 				this.setVisible(false);
 				new TaskCreationUI();
 			} else if(ae.getSource() == btnEdit) {
+				
 				if(selectedItemStatus == true) {
 					TaskDetail task = taskDetailMap.get(selectedItemValue);
 					this.setVisible(false);
 					new TaskUpdationUI(task);
-					System.out.println(task);
+					//System.out.println(task);
 				}
 			} else if(ae.getSource() == btnDelete) {
 				if(selectedItemStatus == true) {
 					TaskDetail task = taskDetailMap.get(selectedItemValue);
 					int output = JOptionPane.showConfirmDialog(this, "Are you sure to remove?");
 					if(output == JOptionPane.YES_OPTION) {
-						System.out.println("delete confirmed for " + selectedItemValue);
+						//System.out.println("delete confirmed for " + selectedItemValue);
 						String deleteStatus = taskOperations.deleteTask(task);
 						JOptionPane.showMessageDialog(this, deleteStatus);
 						

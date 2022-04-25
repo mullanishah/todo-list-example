@@ -54,7 +54,7 @@ public class TaskListGetDao {
 						rst.getString("comment")));
 				rowCount++;
 			}
-			System.out.println("Total rows retrived from database: " + rowCount);
+			//System.out.println("Total rows retrived from database: " + rowCount);
 			//change it to logger
 		} catch (Exception e) {
 			System.out.println("Error in get all tasks");
@@ -83,10 +83,10 @@ public TaskDetail getTaskDetails(String title) throws Exception {
 						rst.getDate("date_completed"),
 						rst.getString("comment"));
 			}
-			System.out.println("returned object: " + task);
+			//System.out.println("returned object: " + task);
 			//change it to logger
 		} catch (Exception e) {
-			System.out.println("Error in get task");
+			//System.out.println("Error in get task");
 			e.printStackTrace();
 			//change it to logger
 		} finally {
