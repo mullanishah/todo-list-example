@@ -3,6 +3,7 @@ package com.app.todo.dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import org.apache.log4j.Logger;
 import com.app.todo.pojo.TaskDetail;
 
 /**
@@ -10,6 +11,8 @@ import com.app.todo.pojo.TaskDetail;
  * @since 24-Apr-2022
  */
 public class TaskListAddDao {
+	
+	private static final Logger log = Logger.getLogger(TaskListAddDao.class);
 	private Connection conn;
 	private PreparedStatement pstAddNewTask;
 	
@@ -27,8 +30,9 @@ public class TaskListAddDao {
 	
 	//CRUD operations
 	public Integer addNewTask(TaskDetail task) throws Exception {
+		log.info("Inside " + getClass() + ".addNewTask() method");
 		
-		try {
+		try {	
 			pstAddNewTask.setString(1, task.getTitle());
 			pstAddNewTask.setString(2, task.getDescription());
 			pstAddNewTask.setString(3, task.getCategory());
@@ -39,9 +43,11 @@ public class TaskListAddDao {
 			
 			int insertCount = pstAddNewTask.executeUpdate();
 			if(insertCount == 1) {
+				log.info("New task created with title: " + task.getTitle());
 				return insertCount;
 			}
 		}catch (Exception e) {
+			log.error("Error occurred while creating a new task");
 			e.printStackTrace();
 		}
 		return -1;

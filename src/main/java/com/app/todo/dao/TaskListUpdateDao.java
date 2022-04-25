@@ -1,10 +1,9 @@
 package com.app.todo.dao;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-
+import org.apache.log4j.Logger;
 import com.app.todo.pojo.TaskDetail;
 
 /**
@@ -12,8 +11,8 @@ import com.app.todo.pojo.TaskDetail;
  * @since 24-Apr-2022
  */
 public class TaskListUpdateDao {
-	
-	//private static Logger log = Logger.getLogger(TaskListUpdateDao.class);
+
+	private static final Logger log = Logger.getLogger(TaskListUpdateDao.class);
 	private Connection conn;
 	private PreparedStatement pstUpdateTask;
 
@@ -32,9 +31,10 @@ public class TaskListUpdateDao {
 	//CRUD operations
 	public Integer updateTask(TaskDetail oldTaskDetails, TaskDetail task) throws Exception {
 
+		log.info("Inside " + getClass() + ".updateTask() method");
 		try {
-			//log.debug("updateTask(), oldTitle: " + oldTitle +", task:" + task);
-			//System.out.println("updateTask(), oldTitle: " + oldTaskDetails +" | task:" + task);
+			log.debug("old task details: " + oldTaskDetails);
+			log.debug("task to be updated: " + task);
 			pstUpdateTask.setString(1, task.getTitle());
 			pstUpdateTask.setString(2, task.getDescription());
 			pstUpdateTask.setString(3, task.getCategory());
@@ -46,19 +46,20 @@ public class TaskListUpdateDao {
 			pstUpdateTask.setString(6, task.getComment());
 			pstUpdateTask.setLong(7, oldTaskDetails.getId());
 			pstUpdateTask.setString(8, oldTaskDetails.getTitle());
-			
+
 			int updateCount = pstUpdateTask.executeUpdate();
-			//.debug("updateTask(), updateCount: " + updateCount);
-			//System.out.println("updateTask(), updateCount: " + updateCount);
+			log.debug("updateCount: " + updateCount);
 			if(updateCount == 1) {
+				log.info("Task updated with title: " + task.getTitle());
 				return updateCount;
 			}
 		}catch (Exception e) {
+			log.error("Error occurred while updating the task");
 			e.printStackTrace();
 		}
 		return -1;	
 	}
-	
+
 	/*
 	 * TODO: update status and completion date if status completed
 	 *  status: NEW, In progress, blockage, completed
@@ -66,6 +67,7 @@ public class TaskListUpdateDao {
 	public Integer updateTaskStatus() throws Exception {
 		try {
 			int a = 0;
+			a = a + 1;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.apache.log4j.Logger;
 import com.app.todo.pojo.TaskDetail;
 
 /**
@@ -13,16 +14,16 @@ import com.app.todo.pojo.TaskDetail;
  * @since 16-Apr-2022
  */
 public class TaskListGetDao {
-	
+	private static final Logger log = Logger.getLogger(TaskListGetDao.class);
 	private Connection conn;
 	private PreparedStatement pstGetAllTasks, pstGetTask;
-	
+
 	public TaskListGetDao() throws SQLException {
 		this.conn = DatabaseUtils.getConnection();
 		this.pstGetAllTasks = conn.prepareStatement(QueryHelper.queryGetAllTasks);
 		this.pstGetTask = conn.prepareStatement(QueryHelper.queryGetTaskByDetail);
 	}
-	
+
 	public void cleanUp() throws Exception {
 		if(null != pstGetAllTasks)
 			pstGetAllTasks.close();
@@ -31,14 +32,15 @@ public class TaskListGetDao {
 		if(null != conn)
 			conn.close();
 	}
-	
+
 	//CRUD operations
 	public Map<String, TaskDetail> getAllTaskDetails() throws Exception {
-		
+
+		log.info("Inside " + getClass() + ".getAllTaskDetails() method");
 		int rowCount = 0;
 		ResultSet rst = null;
 		Map<String, TaskDetail> taskDetailMap = new LinkedHashMap<String, TaskDetail>();
-		
+
 		try {
 			rst = pstGetAllTasks.executeQuery();
 			while(rst.next() != false) {
@@ -54,19 +56,19 @@ public class TaskListGetDao {
 						rst.getString("comment")));
 				rowCount++;
 			}
-			//System.out.println("Total rows retrived from database: " + rowCount);
-			//change it to logger
+			log.info("Total rows retrived from database: " + rowCount);
 		} catch (Exception e) {
-			System.out.println("Error in get all tasks");
-			//change it to logger
+			log.error("Error occurred while fetching/get all tasks");
+			e.printStackTrace();
 		} finally {
 			//rst.close();
 		}
 		return taskDetailMap;
 	}
-	
-public TaskDetail getTaskDetails(String title) throws Exception {
-		
+
+	public TaskDetail getTaskDetails(String title) throws Exception {
+
+		log.info("Inside " + getClass() + ".getTaskDetails() method");
 		TaskDetail task = null;
 		ResultSet rst = null;
 		try {
@@ -83,16 +85,14 @@ public TaskDetail getTaskDetails(String title) throws Exception {
 						rst.getDate("date_completed"),
 						rst.getString("comment"));
 			}
-			//System.out.println("returned object: " + task);
-			//change it to logger
+			log.info("Returned object: " + task);
 		} catch (Exception e) {
-			//System.out.println("Error in get task");
+			log.error("Error occurred while fetching/get the task");
 			e.printStackTrace();
-			//change it to logger
 		} finally {
 			//rst.close();
 		}
 		return task;
 	}
-	
+
 }

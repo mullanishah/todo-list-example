@@ -1,7 +1,6 @@
 package com.app.todo;
 
 import org.apache.log4j.Logger;
-
 import com.app.todo.ui.TaskListUI;
 
 /**
@@ -17,7 +16,6 @@ public class ToDoMainApp {
 		try {
 			log.info("Entered into ToDoMainApp class");
 			TaskListUI uiApp = new TaskListUI();
-			log.info("bye");
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
